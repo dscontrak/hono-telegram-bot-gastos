@@ -5,12 +5,22 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
-    "dev:network": "wrangler dev --ip 0.0.0.0"
+    "dev:network": "wrangler dev --ip 0.0.0.0",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "hono": "^4.13.7"
+    "hono": "^4.13.7",
+    "kysely": "0.29.5",
+    "kysely-d1": "0.4.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "9.6.0",
+    "@types/node": "26.4.1",
+    "better-sqlite3": "13.0.3",
+    "tsx": "4.23.13",
+    "typescript": "7.0.2",
+    "vitest": "5.0.0",
     "wrangler": "^4.110.0"
   }
 }
