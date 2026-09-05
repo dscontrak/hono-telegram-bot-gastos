@@ -1,0 +1,16 @@
+{
+  "name": "hono-cloudflare-telegram",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "dev:network": "wrangler dev --ip 0.0.0.0"
+  },
+  "dependencies": {
+    "hono": "^4.13.7"
+  },
+  "devDependencies": {
+    "wrangler": "^4.110.0"
+  }
+}
