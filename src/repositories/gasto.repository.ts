@@ -19,7 +19,7 @@ export async function saveGasto(db: Db, input: SaveGastoInput): Promise<SaveGast
   try {
     // Cheap dedup check before transaction
     const existing = await db
-      .selectFrom('mensajes')
+      .selectFrom('my_tg_mensajes')
       .select('gasto_id')
       .where('mensaje_tg_id', '=', mensaje_tg_id)
       .where('chat_tg_id', '=', chat_tg_id)
@@ -31,7 +31,7 @@ export async function saveGasto(db: Db, input: SaveGastoInput): Promise<SaveGast
 
     // D1Dialect does not support Kysely transaction (throws). Use sequential inserts.
     const inserted = await db
-      .insertInto('gastos')
+      .insertInto('my_gastos')
       .values({ monto, descripcion })
       .returning('gasto_id')
       .executeTakeFirstOrThrow()
@@ -43,26 +43,28 @@ export async function saveGasto(db: Db, input: SaveGastoInput): Promise<SaveGast
     try {
       for (const etiqueta of uniqueTags) {
         await db
-          .insertInto('etiquetas')
+          .insertInto('my_etiquetas')
           .values({ etiqueta })
           .onConflict((oc) => oc.column('etiqueta').doNothing())
           .execute()
 
-        const tagRow = await db
-          .selectFrom('etiquetas')
+        const etiquetaRow = await db
+          .selectFrom('my_etiquetas')
           .select('etiqueta_id')
           .where('etiqueta', '=', etiqueta)
           .executeTakeFirstOrThrow()
 
-        await db
-          .insertInto('etiquetas_gastos')
-          .values({ etiqueta_id: tagRow.etiqueta_id, gasto_id })
-          .onConflict((oc) => oc.columns(['etiqueta_id', 'gasto_id']).doNothing())
-          .execute()
+        if (etiquetaRow) {
+          await db
+            .insertInto('my_etiquetas_gastos')
+            .values({ etiqueta_id: etiquetaRow.etiqueta_id, gasto_id })
+            .onConflict((oc) => oc.columns(['etiqueta_id', 'gasto_id']).doNothing())
+            .execute()
+        }
       }
 
       await db
-        .insertInto('mensajes')
+        .insertInto('my_tg_mensajes')
         .values({ gasto_id, mensaje_tg_id, chat_tg_id })
         .execute()
 
@@ -73,9 +75,9 @@ export async function saveGasto(db: Db, input: SaveGastoInput): Promise<SaveGast
       const isDup = msg.includes('UNIQUE constraint') || msg.includes('PRIMARY KEY') || msg.includes('duplicate')
       if (isDup) {
         try {
-          await db.deleteFrom('etiquetas_gastos').where('gasto_id', '=', gasto_id).execute()
-          await db.deleteFrom('gastos').where('gasto_id', '=', gasto_id).execute()
-        } catch {}
+          await db.deleteFrom('my_etiquetas_gastos').where('gasto_id', '=', gasto_id).execute()
+          await db.deleteFrom('my_gastos').where('gasto_id', '=', gasto_id).execute()
+        } catch { }
       }
       throw e
     }
@@ -85,13 +87,13 @@ export async function saveGasto(db: Db, input: SaveGastoInput): Promise<SaveGast
       // try to fetch existing id
       try {
         const existing = await db
-          .selectFrom('mensajes')
+          .selectFrom('my_tg_mensajes')
           .select('gasto_id')
           .where('mensaje_tg_id', '=', mensaje_tg_id)
           .where('chat_tg_id', '=', chat_tg_id)
           .executeTakeFirst()
         if (existing) return { ok: false, reason: 'duplicate', existing_gasto_id: existing.gasto_id }
-      } catch {}
+      } catch { }
       return { ok: false, reason: 'duplicate' }
     }
     return { ok: false, reason: 'error', error: msg }

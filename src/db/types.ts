@@ -25,8 +25,8 @@ export interface Mensajes {
 }
 
 export interface Database {
-  gastos: Gastos
-  etiquetas: Etiquetas
-  etiquetas_gastos: EtiquetasGastos
-  mensajes: Mensajes
+  my_gastos: Gastos
+  my_etiquetas: Etiquetas
+  my_etiquetas_gastos: EtiquetasGastos
+  my_tg_mensajes: Mensajes
 }

@@ -23,17 +23,17 @@ describe('gasto.repository', () => {
     expect(res.ok).toBe(true)
     if (res.ok) expect(res.gasto_id).toBeGreaterThan(0)
 
-    const gastos = await db.selectFrom('gastos').selectAll().execute()
+    const gastos = await db.selectFrom('my_gastos').selectAll().execute()
     expect(gastos.length).toBe(1)
     expect(gastos[0].monto).toBe(6000)
 
-    const etiquetas = await db.selectFrom('etiquetas').selectAll().execute()
+    const etiquetas = await db.selectFrom('my_etiquetas').selectAll().execute()
     expect(etiquetas.length).toBe(2)
 
-    const links = await db.selectFrom('etiquetas_gastos').selectAll().execute()
+    const links = await db.selectFrom('my_etiquetas_gastos').selectAll().execute()
     expect(links.length).toBe(2)
 
-    const mensajes = await db.selectFrom('mensajes').selectAll().execute()
+    const mensajes = await db.selectFrom('my_tg_mensajes').selectAll().execute()
     expect(mensajes.length).toBe(1)
     expect(mensajes[0].mensaje_tg_id).toBe(87987978)
   })
@@ -58,7 +58,7 @@ describe('gasto.repository', () => {
     expect(second.ok).toBe(false)
     expect((second as any).reason).toBe('duplicate')
 
-    const gastos = await db.selectFrom('gastos').selectAll().execute()
+    const gastos = await db.selectFrom('my_gastos').selectAll().execute()
     expect(gastos.length).toBe(1) // no orphan
   })
 
@@ -66,24 +66,24 @@ describe('gasto.repository', () => {
     await saveGasto(db, { monto: 10, descripcion: '', tags: [], mensaje_tg_id: 1, chat_tg_id: 1 })
     const second = await saveGasto(db, { monto: 20, descripcion: '', tags: [], mensaje_tg_id: 1, chat_tg_id: 2 })
     expect(second.ok).toBe(true)
-    const gastos = await db.selectFrom('gastos').selectAll().execute()
+    const gastos = await db.selectFrom('my_gastos').selectAll().execute()
     expect(gastos.length).toBe(2)
   })
 
   it('tag uniqueness reused', async () => {
     await saveGasto(db, { monto: 10, descripcion: '', tags: ['TDC'], mensaje_tg_id: 1, chat_tg_id: 1 })
     await saveGasto(db, { monto: 20, descripcion: '', tags: ['tdc'], mensaje_tg_id: 2, chat_tg_id: 1 })
-    const etiquetas = await db.selectFrom('etiquetas').selectAll().execute()
+    const etiquetas = await db.selectFrom('my_etiquetas').selectAll().execute()
     expect(etiquetas.length).toBe(1)
     expect(etiquetas[0].etiqueta).toBe('TDC')
-    const links = await db.selectFrom('etiquetas_gastos').selectAll().execute()
+    const links = await db.selectFrom('my_etiquetas_gastos').selectAll().execute()
     expect(links.length).toBe(2)
   })
 
   it('save without tags', async () => {
     const res = await saveGasto(db, { monto: 5000, descripcion: 'Solo descripcion', tags: [], mensaje_tg_id: 10, chat_tg_id: 10 })
     expect(res.ok).toBe(true)
-    const links = await db.selectFrom('etiquetas_gastos').selectAll().execute()
+    const links = await db.selectFrom('my_etiquetas_gastos').selectAll().execute()
     expect(links.length).toBe(0)
   })
 })

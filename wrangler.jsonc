@@ -9,8 +9,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "gastos-db",
-      "database_id": "local-gastos-db",
+      "database_name": "my-db",
+      "database_id": "local-my-db",
       "migrations_dir": "src/db/migrations"
     }
   ]

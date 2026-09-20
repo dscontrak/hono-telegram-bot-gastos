@@ -143,7 +143,7 @@ describe('webhook', () => {
     const lastBody = JSON.parse(fetchMock.mock.calls[fetchMock.mock.calls.length - 1][1].body)
     expect(lastBody.text).toContain('Ya registrado')
 
-    const rows = await testDb.selectFrom('gastos').selectAll().execute()
+    const rows = await testDb.selectFrom('my_gastos').selectAll().execute()
     expect(rows.length).toBe(1)
   })
 })
